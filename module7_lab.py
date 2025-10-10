@@ -4,6 +4,8 @@
 # Chih-Hsiang Chang        [Student ID 10669872]
 # Nathaniel John Hernandez [Student ID Here]
 
+# ★　todo list: queue implementation, demo queue
+
 
 # NOTE: Our structures for queue and stack go directly in this file.
 # Rather than submitting a zip, we only submit one py file with everything
