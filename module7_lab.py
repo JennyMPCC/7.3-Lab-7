@@ -2,7 +2,7 @@
 ## module7_lab.py
 # Jenny Morris             [Student ID 10677217]
 # Chih-Hsiang Chang        [Student ID 10669872]
-# Nathaniel John Hernandez [Student ID Here]
+# Nathaniel John Hernandez [Student ID 10731765]
 
 # ★　todo list: queue implementation, demo queue
 
@@ -123,6 +123,12 @@ class Queue:
         Args:
             initial_capacity (int): Initial size of the internal array
         """
+
+        self.size = initial_capacity
+        self.length = 0
+        self.data = [0]*initial_capacity
+        self.front_index = 0
+
         pass
     
     def enqueue(self, call_details):
@@ -132,6 +138,13 @@ class Queue:
         Args:
             call_details: Details of the customer service call
         """
+
+        if self.get_size() == self.size:
+            self.resize()
+
+        self.data[(self.front_index+self.length)%self.size] = call_details
+        self.length +=1
+
         pass
     
     def dequeue(self):
@@ -144,6 +157,15 @@ class Queue:
         Raises:
             Exception: If the queue is empty
         """
+        if not self.is_empty():
+            item = self.data[self.front_index]
+            self.front_index +=1
+            self.front_index = (self.front_index + 1) % len(self.data)
+
+        else:
+            raise Exception("Cannot remove element from an empty queue")
+
+
         pass
     
     def front(self):
@@ -156,6 +178,13 @@ class Queue:
         Raises:
             Exception: If the queue is empty
         """
+        if not self.is_empty():
+            return self.data[self.front_index]
+
+        else:
+            raise Exception("Cannot view and empty list")
+
+
         pass
     
     def is_empty(self):
@@ -165,6 +194,12 @@ class Queue:
         Returns:
             bool: True if the queue is empty, False otherwise
         """
+
+        if self.length == 0:
+            return True
+        else:
+            return False
+
         pass
     
     def get_size(self):
@@ -174,15 +209,29 @@ class Queue:
         Returns:
             int: The number of elements in the queue
         """
+
+        return self.length
         pass
     
-    def _resize(self):
+    def resize(self):
         """
         Private method to resize the internal array when capacity is exceeded.
         Doubles the current capacity and copies existing elements.
         """
+
+        new_size = self.size * 2
+        new_data = [0]*new_size
+        for i in range(self.length):
+            new_data[i] = self.data[(self.front_index + i) % self.size]
+        self.data = new_data
+        self.front_index = 0
+        self.size = new_size
+
+    
+
         pass
 
+ 
 
 # =============================================================================
 # DEMONSTRATION AND EXAMPLE USAGE
@@ -258,6 +307,35 @@ def demonstrate_queue() -> None:
     Demonstrate the queue functionality with customer service call examples.
     Shows FIFO processing of calls.
     """
+
+    call_queue = Queue(3)
+
+
+    print("1. Testing empty Queue:")
+    print(f"   Queue is empty: {call_queue.is_empty()}")
+    print(f"   Queue size: {call_queue.get_size()}")
+
+    print("2. Enque call details:")
+    call_queue.enqueue("Caller: John Smith, Caller ID: 1001, Issue: Billing issue")
+    call_queue.enqueue("Caller: Jane Doe, Caller ID: 1002, Issue: Technical support")
+    call_queue.enqueue("Caller: Angel Gonzolez, Caller ID: 3304, Issue: Internet plan")
+
+    print(call_queue.front())
+    print(f"   Queue size: {call_queue.get_size()}")
+    print(f"   Queue is empty: {call_queue.is_empty()}")
+
+    print("3. Resizing the Queue:")
+    call_queue.enqueue("Caller: Mike Davis, Caller ID: 1003, Issue: Account update")
+    print(call_queue.front())
+    print(f"   Queue size: {call_queue.get_size()}")
+    
+    print("4. Deque call details:")
+    call_queue.dequeue()
+    print(call_queue.front())
+    print(f"   Queue size: {call_queue.get_size()}")
+
+    #print(f"Caller: John Smith, Caller ID: 1001, Issue: Billing issue")
+
     pass
 
 
@@ -272,6 +350,8 @@ def main():
     
     print("=" * 60)
     print()
+    for i in range(10):
+        print()
     
     demonstrate_queue()
 
