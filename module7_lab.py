@@ -1,7 +1,7 @@
 ### LAB 7 Group 1
 ## module7_lab.py
 # Jenny Morris             [Student ID 10677217]
-# Chih-Hsiang Chang        [Student ID Here]
+# Chih-Hsiang Chang        [Student ID 10669872]
 # Nathaniel John Hernandez [Student ID Here]
 
 
