@@ -387,7 +387,7 @@ def demonstrate_queue() -> None:
 
 
 
-    print("\n2. Enque call details:")
+    print("\n2. Enqueue call details:")
     
     # Sample incoming calls to add to stack
     calls = list(map(lambda x: CallerDetails(x[0], x[1], x[2], x[3], x[4]),
@@ -418,7 +418,7 @@ def demonstrate_queue() -> None:
     print(f"   Priority call: {call_queue.front()}")
     print(f"   Queue size: {call_queue.get_size()}")
 
-    pass
+    print("\nStack demonstration complete.")
 
 
 def main():
