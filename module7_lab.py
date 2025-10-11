@@ -11,6 +11,8 @@
 # Rather than submitting a zip, we only submit one py file with everything
 # in it this week.
 
+    
+# PART A: STACK IMPLEMENTATION (Ticket Cancellation Management)
 
 class Node:
     """
@@ -26,9 +28,32 @@ class Node:
         """
         self.data = data
         self.next = None  # Reference to the next node in the stack
-    
-# PART A: STACK IMPLEMENTATION (Ticket Cancellation Management)
 
+class CancellationDetails(Node):
+    """
+    Cancellation details to be passed to the data parameter of the node class.
+    In an real-world application using this project, users could enter values.
+    """
+
+    def __init__(self, number=0000, name="NO NAME", location="NO LOCATION", m=1, d=1, y=2025, reason="NO REASON"):
+        """
+        Initialize a cancellation with given data.
+        """
+
+        self.number = number
+        self.name = name
+        self.location = location
+        self.m = m
+        self.d = d
+        self.y = y
+        self.reason = reason
+
+    def __str__(self):
+        """
+        Return cancellation details as a one-line string summary.
+        """
+        return f"Ticket #{self.number:04d} - {self.name} - {self.location} on {self.m:02d}/{self.d:02d}/{self.y:02d} - Reason:{self.reason}"
+    
 class Stack:
     """
     Stack implementation using linked list for managing ticket cancellations.
@@ -36,20 +61,27 @@ class Stack:
     are processed first.
     """
     
-    def __init__(self):
+    def __init__(self, capacity = -1): # Negative values for capacity allow for unbounded stacks.
         """
-        Initialize an empty stack.
+        Initialize an empty stack with given capacity.
         """
-        self.top = None
-        self.size = 0
+        self.top = None # Most recent (prioritized) cancellation
+        self.size = 0 # Number of cancellations to handle
+        self.capacity = capacity # Capacity, or Maximum number of cancellations to allow
     
     def push(self, cancellation_details):
         """
-        Add a new cancellation to the top of the stack.
+        Add a new cancellation to the top of the stack, if there is room.
         
         Args:
             cancellation_details: Details of the ticket cancellation
+
+        Raises:
+            Exception: If the stack is is full
         """
+        if self.is_full():
+            raise Exception("Cannot push to full stack")
+        
         new_node = Node(cancellation_details)
         new_node.next = self.top
         self.top = new_node
@@ -93,9 +125,18 @@ class Stack:
         Check if the stack is empty.
         
         Returns:
-            bool: True if the stack is empty, False otherwise
+            bool: True if the stack is empty (top element is none), False otherwise
         """
         return self.top is None
+    
+    def is_full(self):
+        """
+        Check if the stack is full.
+        
+        Returns:
+            bool: True if the stack is full (size = capacity), False otherwise
+        """
+        return self.size == self.capacity
     
     def get_size(self):
         """
@@ -105,9 +146,41 @@ class Stack:
             int: The number of elements in the stack
         """
         return self.size
+    
+    def get_capacity(self):
+        """
+        Get the capacity (max size) of the stack. Negative values = unbounded.
+        
+        Returns:
+            int: The capacity of the stack
+        """
+        return self.capacity
 
 
 # PART B: QUEUE IMPLEMENTATION (Customer Service Call Handling)
+
+class CallerDetails(Node):
+    """
+    Caller details to be passed to value of a call in the calls array.
+    In an real-world application using this project, users could enter values.
+    """
+
+    def __init__(self, id=0000, name="NO NAME",  area=555, number=5555555, issue="NO ISSUE"):
+        """
+        Initialize a caller with given data.
+        """
+
+        self.id = id
+        self.name = name
+        self.area = area
+        self.number = number
+        self.issue = issue
+
+    def __str__(self):
+        """
+        Return caller details as a one-line string summary.
+        """
+        return f"Caller - ID: {self.id:04d} - Name: {self.name} - Number: ({self.area}) {self.number//10000}-{self.number%10000} - Issue: {self.issue}"
 
 class Queue:
     """
@@ -121,15 +194,13 @@ class Queue:
         Initialize an empty queue with specified initial capacity.
         
         Args:
-            initial_capacity (int): Initial size of the internal array
+            initial_capacity (int): Initial capacity of the internal array
         """
 
-        self.size = initial_capacity
-        self.length = 0
+        self.size = 0
+        self.capacity = initial_capacity
         self.data = [0]*initial_capacity
         self.front_index = 0
-
-        pass
     
     def enqueue(self, call_details):
         """
@@ -138,13 +209,11 @@ class Queue:
         Args:
             call_details: Details of the customer service call
         """
-        if self.get_size() == self.size:
-            self.resize()
+        if self.get_size() == self.capacity:
+            self._resize()
 
-        self.data[(self.front_index+self.length)%self.size] = call_details
-        self.length +=1
-
-        pass
+        self.data[(self.front_index+self.size)%self.capacity] = call_details
+        self.size +=1
     
     def dequeue(self):
         """
@@ -163,7 +232,6 @@ class Queue:
 
         else:
             raise Exception("Cannot remove element from an empty queue")
-        pass
     
     def front(self):
         """
@@ -180,7 +248,6 @@ class Queue:
 
         else:
             raise Exception("Cannot view and empty list")
-        pass
     
     def is_empty(self):
         """
@@ -190,11 +257,8 @@ class Queue:
             bool: True if the queue is empty, False otherwise
         """
 
-        if self.length == 0:
-            return True
-        else:
-            return False
-        pass
+        return self.size == 0
+
     
     def get_size(self):
         """
@@ -203,22 +267,29 @@ class Queue:
         Returns:
             int: The number of elements in the queue
         """
-        return self.length
-        pass
+        return self.size
     
-    def resize(self):
+    def get_capacity(self):
         """
-        Private method to resize the internal array when capacity is exceeded.
+        Get the current maximum capacity of the queue.
+        
+        Returns:
+            int: The capacity of the queue
+        """
+        return self.capacity
+    
+    def _resize(self):
+        """
+        Private method to increase the capacity of the internal array when capacity is exceeded.
         Doubles the current capacity and copies existing elements.
         """
-        new_size = self.size * 2
-        new_data = [0]*new_size
-        for i in range(self.length):
-            new_data[i] = self.data[(self.front_index + i) % self.size]
+        new_capacity = self.capacity * 2
+        new_data = [0]*new_capacity
+        for i in range(self.size):
+            new_data[i] = self.data[(self.front_index + i) % self.capacity]
         self.data = new_data
         self.front_index = 0
-        self.size = new_size
-        pass
+        self.capacity = new_capacity
 
 
 # =============================================================================
@@ -238,6 +309,7 @@ def demonstrate_stack():
     # Test 1: Check empty stack
     print("1. Testing empty stack:")
     print(f"   Stack is empty: {cancellation_stack.is_empty()}")
+    print(f"   Stack capacity: {cancellation_stack.get_capacity()} (negative values = unbounded)")
     print(f"   Stack size: {cancellation_stack.get_size()}")
     
     # Test edge case: try to peek/pop empty stack
@@ -252,15 +324,14 @@ def demonstrate_stack():
         print(f"   Pop empty stack error: {e}")
     
     print("\n2. Adding cancellations to the stack (push operations):")
-    
-    # Sample ticket cancellations
-    cancellations = [
-        "Ticket #1001 - John Smith - Concert on 10/15/2025 - Reason: Personal emergency",
-        "Ticket #1002 - Sarah Johnson - Theater on 10/16/2025 - Reason: Flight cancelled", 
-        "Ticket #1003 - Mike Davis - Sports game on 10/17/2025 - Reason: Work conflict",
-        "Ticket #1004 - Lisa Wilson - Musical on 10/18/2025 - Reason: Illness",
-        "Ticket #1005 - Tom Brown - Comedy show on 10/19/2025 - Reason: Double booking"
-    ]
+
+    # Sample ticket cancellations to add to stack
+    cancellations = list(map(lambda x: CancellationDetails(x[0], x[1], x[2], x[3], x[4], x[5], x[6]),
+                             [(1001, "John Smith", "Concert", 10, 15, 2025, "Personal emergency"),
+                              (1002, "Sarah Johnson", "Theater", 10, 16, 2025, "Flight cancelled"),
+                              (1003, "Mike Daves", "Sports game", 10, 17, 2025, "Work conflict"),
+                              (1004, "Lisa Wilson", "Musical", 10, 18, 2025, "Illness"),
+                              (1005, "Tom Brown", "Comedy Show", 10, 19, 2025, "Double booking")]))
     
     # Push cancellations onto the stack
     for i, cancellation in enumerate(cancellations, 1):
@@ -315,22 +386,31 @@ def demonstrate_queue() -> None:
 
 
     print("\n2. Enque call details:")
-    call_queue.enqueue("Caller: John Smith, Caller ID: 1001, Issue: Billing issue")
-    call_queue.enqueue("Caller: Jane Doe, Caller ID: 1002, Issue: Technical support")
-    call_queue.enqueue("Caller: Angel Gonzolez, Caller ID: 3304, Issue: Internet plan")
+    
+    # Sample incoming calls to add to stack
+    calls = list(map(lambda x: CallerDetails(x[0], x[1], x[2], x[3], x[4]),
+                             [(1001, "John Smith", 555, 1234567, "Billing issue"),
+                              (1002, "Jane Doe", 555, 1751337, "Technical support"),
+                              (3304, "Angel Gonzalez", 555, 9871234, "Internet plan")]))
+    
+    # Enqueue calls onto the stack
+    for i, call in enumerate(calls, 1):
+        call_queue.enqueue(call)
+        print(f"   {i}. Queued: {call}")
+        print(f"      Queue size: {call_queue.get_size()}")
 
-    print(call_queue.front())
+    print(f"   Priority call: {call_queue.front()}")
     print(f"   Queue size: {call_queue.get_size()}")
     print(f"   Queue is empty: {call_queue.is_empty()}")
 
-    print("\n3. Resizing the Queue:")
-    call_queue.enqueue("Caller: Mike Davis, Caller ID: 1003, Issue: Account update")
-    print(call_queue.front())
+    print("\n3. Resizing the Queue when exceeding capacity:")
+    call_queue.enqueue(CallerDetails(1003, "Mike Davis", 555, 8765309, "Account update"))
+    print(f"   Priority call: {call_queue.front()}")
     print(f"   Queue size: {call_queue.get_size()}")
     
     print("\n4. Deque call details:")
     call_queue.dequeue()
-    print(call_queue.front())
+    print(f"   Priority call: {call_queue.front()}")
     print(f"   Queue size: {call_queue.get_size()}")
     pass
 
