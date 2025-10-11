@@ -227,8 +227,9 @@ class Queue:
         """
         if not self.is_empty():
             item = self.data[self.front_index]
-            self.front_index +=1
+
             self.front_index = (self.front_index + 1) % len(self.data)
+            self.size -= 1
 
         else:
             raise Exception("Cannot remove element from an empty queue")
@@ -372,6 +373,7 @@ def demonstrate_queue() -> None:
     print("1. Testing empty Queue:")
     print(f"   Queue is empty: {call_queue.is_empty()}")
     print(f"   Queue size: {call_queue.get_size()}")
+    print(f"   Queue capacity: {call_queue.get_capacity()}")
 
     #testing edge cases
     try:
@@ -398,6 +400,7 @@ def demonstrate_queue() -> None:
         call_queue.enqueue(call)
         print(f"   {i}. Queued: {call}")
         print(f"      Queue size: {call_queue.get_size()}")
+        
 
     print(f"   Priority call: {call_queue.front()}")
     print(f"   Queue size: {call_queue.get_size()}")
@@ -405,13 +408,16 @@ def demonstrate_queue() -> None:
 
     print("\n3. Resizing the Queue when exceeding capacity:")
     call_queue.enqueue(CallerDetails(1003, "Mike Davis", 555, 8765309, "Account update"))
-    print(f"   Priority call: {call_queue.front()}")
+    print(f"   Add another call to exceed capacity.:  {CallerDetails(1003, "Mike Davis", 555, 8765309, "Account update")}")
     print(f"   Queue size: {call_queue.get_size()}")
+    print(f"   Queue capacity: {call_queue.get_capacity()}")
+
     
     print("\n4. Deque call details:")
     call_queue.dequeue()
     print(f"   Priority call: {call_queue.front()}")
     print(f"   Queue size: {call_queue.get_size()}")
+
     pass
 
 
